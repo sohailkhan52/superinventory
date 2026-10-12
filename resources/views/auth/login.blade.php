@@ -203,6 +203,16 @@
                     <i class="bi bi-box-arrow-in-right me-2"></i>
                     Login
                 </button>
+
+                <!-- Register Link -->
+                <div class="text-center mt-4">
+                    <p class="text-muted mb-0">
+                        Don't have a shop? 
+                        <a href="{{ route('register') }}" class="forgot-link fw-semibold">
+                            <i class="bi bi-plus-circle me-1"></i>Register Shop
+                        </a>
+                    </p>
+                </div>
             </form>
         </div>
     </div>

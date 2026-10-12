@@ -45,6 +45,10 @@ Route::middleware('guest')->group(function () {
     // Reset Password
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+    // Shop Registration
+    Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register']);
 });
 
 /*
@@ -78,7 +82,7 @@ Route::middleware('auth')->group(function () {
 |
 */
 
-Route::middleware(['auth', 'user_status'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'shop.approved', 'role:admin,staff', 'user_status'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/update-settings', [DashboardController::class, 'updateSettings'])->name('dashboard.update-settings');
@@ -635,3 +639,36 @@ Route::get('/run-package-migration', function () {
         return '<pre>❌ Error: ' . $e->getMessage() . '</pre>';
     }
 })->name('run.package.migration');
+
+
+/*
+|--------------------------------------------------------------------------
+| SUPER ADMIN ROUTES
+|--------------------------------------------------------------------------
+| Routes for super administrators only.
+| Middleware: auth, role:super_admin
+| Prefix: /super-admin
+*/
+Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Shops Management
+    Route::get('/shops', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'index'])
+        ->name('shops.index');
+
+    Route::get('/shops/{shop}', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'show'])
+        ->name('shops.show');
+
+    Route::post('/shops/{shop}/approve', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'approve'])
+        ->name('shops.approve');
+
+    Route::post('/shops/{shop}/reject', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'reject'])
+        ->name('shops.reject');
+
+    Route::post('/shops/{shop}/suspend', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'suspend'])
+        ->name('shops.suspend');
+});
+

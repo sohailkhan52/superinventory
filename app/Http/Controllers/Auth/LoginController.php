@@ -31,8 +31,14 @@ class LoginController extends Controller
         // Update last login timestamp
         Auth::user()->updateLastLogin();
 
-        // Redirect to home page (welcome page with authenticated user view)
-        return redirect()->intended(route('home'));
+        // Role-based redirect
+        $user = Auth::user();
+
+        return match ($user->role) {
+            'super_admin' => redirect()->intended(route('super-admin.dashboard')),
+            'admin', 'staff' => redirect()->intended(route('admin.dashboard')),
+            default => redirect()->intended(route('home')),
+        };
     }
 
     /**
