@@ -2,69 +2,63 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * Seeds Spatie roles with correct schema
      */
     public function run(): void
     {
-        // Define roles - Only Super Admin and Admin
+        // Reset cached permissions/roles after seeding
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Define roles with Spatie schema (name only, no slug)
         $roles = [
             [
                 'name' => 'Super Admin',
-                'slug' => 'super-admin',
-                'description' => 'Has complete access to the entire system',
-                'is_super_admin' => true,
-                'permissions' => [], // Super admin gets all permissions automatically
+                'guard_name' => 'web',
+                'permissions' => [], // Super admin gets all via is_super_admin flag
             ],
             [
                 'name' => 'Admin',
-                'slug' => 'admin',
-                'description' => 'Has access to most features',
-                'is_super_admin' => false,
+                'guard_name' => 'web',
                 'permissions' => [
-                    'users.view', 'users.create', 'users.update', 'users.delete',
-                    'companies.view', 'companies.create', 'companies.update', 'companies.delete',
-                    'products.view', 'products.create', 'products.update', 'products.delete',
-                    'warehouses.view', 'warehouses.create', 'warehouses.update', 'warehouses.delete',
-                    'inventory.view', 'inventory.manage', 'inventory.check', 'inventory.adjust',
-                    'suppliers.view', 'suppliers.create', 'suppliers.update', 'suppliers.delete',
-                    'customers.view', 'customers.create', 'customers.update', 'customers.delete',
-                    'purchases.view', 'purchases.create', 'purchases.update', 'purchases.approve', 'purchases.cancel',
-                    'sales.view', 'sales.create', 'sales.update', 'sales.approve', 'sales.cancel',
-                    'transfers.view', 'transfers.create', 'transfers.approve', 'transfers.receive',
-                    'stock_requests.view', 'stock_requests.create', 'stock_requests.update', 'stock_requests.cancel', 'stock_requests.delete',
-                    'udhar.view', 'udhar.create', 'udhar.export',
-                    'reports.view',
-                    'expenses.view', 'expenses.create', 'expenses.edit', 'expenses.delete',
-                    'welcome-page.manage',
+                    'View Categories', 'Create Categories', 'Edit Categories', 'Delete Categories',
+                    'View Users', 'Create Users', 'Edit Users', 'Delete Users',
+                    'View Companies', 'Create Companies', 'Edit Companies', 'Delete Companies',
+                    'View Products', 'Create Products', 'Edit Products', 'Delete Products',
+                    'View Warehouses', 'Create Warehouses', 'Edit Warehouses', 'Delete Warehouses',
+                    'View Inventory', 'Manage Inventory', 'Check Inventory', 'Adjust Inventory',
+                    'View Purchases', 'Create Purchases', 'Update Purchases', 'Approve Purchases', 'Cancel Purchases',
+                    'View Sales', 'Create Sales', 'Update Sales', 'Approve Sales', 'Cancel Sales',
+                    'View Reports', 'Export Reports',
+                    'View Udhar', 'Record Udhar Payments', 'Export Udhar Reports',
                 ],
             ],
         ];
 
         foreach ($roles as $roleData) {
-            // Create or update role
+            // Create or update role using Spatie schema
             $role = Role::firstOrCreate(
-                ['slug' => $roleData['slug']],
-                [
-                    'name' => $roleData['name'],
-                    'description' => $roleData['description'],
-                    'is_super_admin' => $roleData['is_super_admin'],
-                ]
+                ['name' => $roleData['name'], 'guard_name' => $roleData['guard_name']],
+                ['name' => $roleData['name'], 'guard_name' => $roleData['guard_name']]
             );
 
             // Assign permissions to role (if not super admin)
-            if (!$roleData['is_super_admin'] && !empty($roleData['permissions'])) {
-                $permissions = Permission::whereIn('slug', $roleData['permissions'])->get();
-                $role->permissions()->sync($permissions);
+            if (!empty($roleData['permissions'])) {
+                $permissions = Permission::whereIn('name', $roleData['permissions'])->pluck('id')->toArray();
+                $role->syncPermissions($permissions);
+                $this->command->info("✓ Role '{$role->name}' created/updated with " . count($permissions) . ' permissions.');
+            } else {
+                $this->command->info("✓ Role '{$role->name}' created/updated (gets all permissions via is_super_admin flag).");
             }
-
-            $this->command->info("Role '{$role->name}' created with " . count($roleData['permissions']) . ' permissions.');
         }
+
+        $this->command->info("\n✅ Roles seeded successfully!");
     }
 }

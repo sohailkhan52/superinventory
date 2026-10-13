@@ -17,7 +17,7 @@ class ShopApprovedMiddleware
         }
 
         // Super admin bypasses all checks
-        if ($user->role === 'super_admin') {
+        if ($user->isSuperAdmin()) {
             return $next($request);
         }
 

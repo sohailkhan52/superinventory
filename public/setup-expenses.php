@@ -16,8 +16,8 @@ $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
 use Illuminate\Support\Facades\Artisan;
-use App\Models\Permission;
-use App\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 try {
     echo "Step 1: Creating/syncing permissions...\n";

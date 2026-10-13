@@ -23,6 +23,10 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'shop_name' => ['required', 'string', 'max:255'],
+            'shop_city' => ['required', 'string', 'max:255'],
+            'shop_phone' => ['required', 'string', 'max:20'],
+            'shop_address' => ['required', 'string', 'max:500'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::defaults()],

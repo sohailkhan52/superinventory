@@ -18,7 +18,7 @@
             border-radius: 10px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
-            max-width: 450px;
+            max-width: 550px;
         }
         .register-header {
             text-align: center;
@@ -104,9 +104,13 @@
     <div class="container">
         <div class="register-container mx-auto">
             <div class="register-header">
-                <h1>Create Account</h1>
-                <p>Join Urea Inventory Management System</p>
+                <h1>Register Shop</h1>
+                <p>Create Your Shop & Account</p>
             </div>
+
+            @if (session('error'))
+                <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+            @endif
 
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -121,9 +125,77 @@
             <form method="POST" action="{{ route('register') }}">
                 @csrf
 
-                <!-- Name -->
+                <!-- Shop Name -->
                 <div class="form-group">
-                    <label for="name">Full Name</label>
+                    <label for="shop_name">Shop Name</label>
+                    <input 
+                        type="text" 
+                        id="shop_name" 
+                        name="shop_name" 
+                        class="form-control @error('shop_name') is-invalid @enderror"
+                        value="{{ old('shop_name') }}"
+                        placeholder="Enter your shop name"
+                        required
+                    >
+                    @error('shop_name')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Shop City -->
+                <div class="form-group">
+                    <label for="shop_city">City</label>
+                    <input 
+                        type="text" 
+                        id="shop_city" 
+                        name="shop_city" 
+                        class="form-control @error('shop_city') is-invalid @enderror"
+                        value="{{ old('shop_city') }}"
+                        placeholder="Enter city"
+                        required
+                    >
+                    @error('shop_city')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Shop Phone -->
+                <div class="form-group">
+                    <label for="shop_phone">Phone</label>
+                    <input 
+                        type="tel" 
+                        id="shop_phone" 
+                        name="shop_phone" 
+                        class="form-control @error('shop_phone') is-invalid @enderror"
+                        value="{{ old('shop_phone') }}"
+                        placeholder="Enter phone number"
+                        required
+                    >
+                    @error('shop_phone')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Shop Address -->
+                <div class="form-group">
+                    <label for="shop_address">Address</label>
+                    <input 
+                        type="text" 
+                        id="shop_address" 
+                        name="shop_address" 
+                        class="form-control @error('shop_address') is-invalid @enderror"
+                        value="{{ old('shop_address') }}"
+                        placeholder="Enter shop address"
+                        required
+                    >
+                    @error('shop_address')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Owner Name -->
+                <div class="form-group">
+                    <label for="name">Owner Full Name</label>
                     <input 
                         type="text" 
                         id="name" 
@@ -191,7 +263,7 @@
                 </div>
 
                 <!-- Register Button -->
-                <button type="submit" class="btn-register">Create Account</button>
+                <button type="submit" class="btn-register">Create Shop & Account</button>
             </form>
 
             <div class="login-link">

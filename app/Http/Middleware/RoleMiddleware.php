@@ -16,14 +16,23 @@ class RoleMiddleware
 
         $user = auth()->user();
 
-        if (!$user || !isset($user->role)) {
-            abort(403, 'User role not configured.');
+        if (!$user) {
+            abort(403, 'User not authenticated.');
         }
 
-        if (!in_array($user->role, $roles)) {
-            abort(403, 'Unauthorized. Insufficient role.');
+        // Super admin has all roles implicitly
+        if ($user->isSuperAdmin()) {
+            return $next($request);
         }
 
-        return $next($request);
+        // Check if user has any of the required roles using Spatie
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
+                return $next($request);
+            }
+        }
+
+        // User doesn't have required role
+        abort(403, 'Unauthorized. You do not have the required role: ' . implode(', ', $roles));
     }
 }

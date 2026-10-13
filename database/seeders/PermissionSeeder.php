@@ -2,124 +2,88 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * PHASE 1: Removed permissions for User, Company, Category, Product, Warehouse, Inventory, Customers, Expenses, Stock Transfers, Stock Requests, Welcome Page management
+     * Seeds permissions using Spatie's correct schema (name only, no slug)
      */
     public function run(): void
     {
+        // Reset cached permissions after seeding
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         $permissions = [
-            // Purchase Management - KEPT
-            [
-                'name' => 'View Purchases',
-                'slug' => 'purchases.view',
-                'group' => 'purchases',
-                'description' => 'View list of purchases',
-            ],
-            [
-                'name' => 'Create Purchases',
-                'slug' => 'purchases.create',
-                'group' => 'purchases',
-                'description' => 'Create new purchases',
-            ],
-            [
-                'name' => 'Update Purchases',
-                'slug' => 'purchases.update',
-                'group' => 'purchases',
-                'description' => 'Edit existing purchases',
-            ],
-            [
-                'name' => 'Approve Purchases',
-                'slug' => 'purchases.approve',
-                'group' => 'purchases',
-                'description' => 'Approve purchase orders',
-            ],
-            [
-                'name' => 'Cancel Purchases',
-                'slug' => 'purchases.cancel',
-                'group' => 'purchases',
-                'description' => 'Cancel purchase orders',
-            ],
+            // Category Management
+            'View Categories',
+            'Create Categories',
+            'Edit Categories',
+            'Delete Categories',
 
-            // Sales Management - KEPT
-            [
-                'name' => 'View Sales',
-                'slug' => 'sales.view',
-                'group' => 'sales',
-                'description' => 'View list of sales',
-            ],
-            [
-                'name' => 'Create Sales',
-                'slug' => 'sales.create',
-                'group' => 'sales',
-                'description' => 'Create new sales',
-            ],
-            [
-                'name' => 'Update Sales',
-                'slug' => 'sales.update',
-                'group' => 'sales',
-                'description' => 'Edit existing sales',
-            ],
-            [
-                'name' => 'Cancel Sales',
-                'slug' => 'sales.cancel',
-                'group' => 'sales',
-                'description' => 'Cancel sales orders',
-            ],
-            [
-                'name' => 'Approve Sales',
-                'slug' => 'sales.approve',
-                'group' => 'sales',
-                'description' => 'Confirm and approve sales orders',
-            ],
+            // User Management
+            'View Users',
+            'Create Users',
+            'Edit Users',
+            'Delete Users',
 
-            // Reports - KEPT
-            [
-                'name' => 'View Reports',
-                'slug' => 'reports.view',
-                'group' => 'reports',
-                'description' => 'View reports',
-            ],
-            [
-                'name' => 'Export Reports',
-                'slug' => 'reports.export',
-                'group' => 'reports',
-                'description' => 'Export reports to Excel/PDF',
-            ],
+            // Company Management
+            'View Companies',
+            'Create Companies',
+            'Edit Companies',
+            'Delete Companies',
 
-            // Udhar Management (Credit/Outstanding) - KEPT
-            [
-                'name' => 'View Udhar',
-                'slug' => 'udhar.view',
-                'group' => 'udhar',
-                'description' => 'View Udhar (outstanding balance) management',
-            ],
-            [
-                'name' => 'Record Udhar Payments',
-                'slug' => 'udhar.create',
-                'group' => 'udhar',
-                'description' => 'Record payments for outstanding Udhar',
-            ],
-            [
-                'name' => 'Export Udhar Reports',
-                'slug' => 'udhar.export',
-                'group' => 'udhar',
-                'description' => 'Export Udhar reports',
-            ],
+            // Product Management
+            'View Products',
+            'Create Products',
+            'Edit Products',
+            'Delete Products',
+
+            // Warehouse Management
+            'View Warehouses',
+            'Create Warehouses',
+            'Edit Warehouses',
+            'Delete Warehouses',
+
+            // Inventory Management
+            'View Inventory',
+            'Manage Inventory',
+            'Check Inventory',
+            'Adjust Inventory',
+
+            // Purchase Management
+            'View Purchases',
+            'Create Purchases',
+            'Update Purchases',
+            'Approve Purchases',
+            'Cancel Purchases',
+
+            // Sales Management
+            'View Sales',
+            'Create Sales',
+            'Update Sales',
+            'Cancel Sales',
+            'Approve Sales',
+
+            // Reports
+            'View Reports',
+            'Export Reports',
+
+            // Udhar Management (Credit/Outstanding)
+            'View Udhar',
+            'Record Udhar Payments',
+            'Export Udhar Reports',
         ];
 
-        foreach ($permissions as $permission) {
+        foreach ($permissions as $permissionName) {
             Permission::firstOrCreate(
-                ['slug' => $permission['slug']],
-                $permission
+                ['name' => $permissionName, 'guard_name' => 'web'],
+                ['name' => $permissionName, 'guard_name' => 'web']
             );
         }
 
-        $this->command->info('Permissions created successfully!');
+        $this->command->info('✅ Permissions seeded successfully! Total: ' . count($permissions));
     }
 }

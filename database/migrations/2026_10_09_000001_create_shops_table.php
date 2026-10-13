@@ -11,6 +11,9 @@ return new class extends Migration
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('code', 10)->unique()->nullable();
+            $table->string('email')->nullable();
+            $table->string('owner_name')->nullable();
             $table->string('city')->nullable();
             $table->string('phone', 30)->nullable();
             $table->string('address')->nullable();

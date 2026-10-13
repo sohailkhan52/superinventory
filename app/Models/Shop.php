@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int    $id
  * @property string $name
+ * @property string|null $email
  * @property string $status   pending|approved|rejected|suspended
  * @property string|null $city
  * @property string|null $phone
@@ -25,9 +26,12 @@ class Shop extends Model
 
     protected $fillable = [
         'name',
+        'code',
+        'email',
         'city',
         'phone',
         'address',
+        'owner_name',
         'status',
         'owner_id',
     ];

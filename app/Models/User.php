@@ -10,6 +10,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Models\Permission;
 
 /**
  * @property int $id
@@ -25,12 +27,12 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'phone', 'profile_image', 'status', 'password'])]
+#[Fillable(['name', 'email', 'phone', 'profile_image', 'status', 'password', 'shop_id', 'is_super_admin'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * Status constants
@@ -50,6 +52,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
     }
 
@@ -134,41 +137,42 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has a specific role.
-     */
-    public function hasRole(string|array $roles): bool
-    {
-        if (is_string($roles)) {
-            $roles = [$roles];
-        }
-
-        return $this->roles()->whereIn('slug', $roles)->exists();
-    }
-
-    /**
-     * Check if user is a super admin.
+     * Check if user is a super admin via the is_super_admin flag on users table.
+     * Super admin has implicit all permissions and roles.
      */
     public function isSuperAdmin(): bool
     {
-        return $this->roles()->where('is_super_admin', true)->exists();
+        return $this->is_super_admin === true;
+    }
+
+    /**
+     * Check if user has a specific role.
+     * Uses Spatie's built-in hasRole method via HasRoles trait.
+     */
+    public function hasRole(string|array $roles): bool
+    {
+        // Super admin implicitly has all roles
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // Use Spatie's native hasRole (from HasRoles trait)
+        return parent::hasRole($roles);
     }
 
     /**
      * Check if user has a specific permission.
+     * Uses Spatie's built-in hasPermissionTo method.
      */
-    public function hasPermission(string $permissionSlug): bool
+    public function hasPermission(string $permissionName): bool
     {
         // Super admin has all permissions
         if ($this->isSuperAdmin()) {
             return true;
         }
 
-        // Check if any of user's roles have this permission
-        return $this->roles()
-            ->whereHas('permissions', function ($query) use ($permissionSlug) {
-                $query->where('slug', $permissionSlug);
-            })
-            ->exists();
+        // Use Spatie's native hasPermissionTo (from HasRoles trait)
+        return $this->hasPermissionTo($permissionName);
     }
 
     /**
@@ -210,56 +214,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all permissions for the user (via roles).
+     * Get all permissions for the user (via Spatie).
      */
     public function getAllPermissions(): \Illuminate\Support\Collection
     {
-        return $this->roles()
-            ->with('permissions')
-            ->get()
-            ->pluck('permissions')
-            ->flatten()
-            ->unique('id');
-    }
-
-    /**
-     * Assign role to user.
-     */
-    public function assignRole(Role|string $role): void
-    {
-        if (is_string($role)) {
-            $role = Role::where('slug', $role)->firstOrFail();
+        // Super admin gets all permissions from the system
+        if ($this->isSuperAdmin()) {
+            return \Spatie\Permission\Models\Permission::all();
         }
 
-        $this->roles()->syncWithoutDetaching($role);
-    }
-
-    /**
-     * Remove role from user.
-     */
-    public function removeRole(Role|string $role): void
-    {
-        if (is_string($role)) {
-            $role = Role::where('slug', $role)->firstOrFail();
-        }
-
-        $this->roles()->detach($role);
-    }
-
-    /**
-     * Sync roles for user.
-     */
-    public function syncRoles(array $roles): void
-    {
-        $roleIds = collect($roles)->map(function ($role) {
-            if ($role instanceof Role) {
-                return $role->id;
-            }
-
-            return Role::where('slug', $role)->firstOrFail()->id;
-        });
-
-        $this->roles()->sync($roleIds);
+        // Get permissions through roles via Spatie
+        return $this->getAllPermissions();
     }
 
     /*

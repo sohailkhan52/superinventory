@@ -124,6 +124,13 @@
         </div>
 
         <div class="login-body">
+            @if(session('error'))
+                <div class="alert alert-danger mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @if(session('success'))
                 <div class="alert alert-success mb-4" role="alert">
                     <i class="bi bi-check-circle me-2"></i>

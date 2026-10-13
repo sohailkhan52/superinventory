@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -29,12 +29,12 @@ class TestUsersSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'status' => User::STATUS_ACTIVE,
                 'email_verified_at' => now(),
-                'role' => 'admin',
+                'role' => 'Admin',
             ],
         ];
 
         foreach ($testUsers as $userData) {
-            $roleSlug = $userData['role'];
+            $roleName = $userData['role'];
             unset($userData['role']);
 
             // Check if user already exists
@@ -49,7 +49,7 @@ class TestUsersSeeder extends Seeder
             $user = User::create($userData);
 
             // Assign role
-            $role = Role::where('slug', $roleSlug)->first();
+            $role = Role::where('name', $roleName)->where('guard_name', 'web')->first();
             if ($role) {
                 $user->assignRole($role);
                 $this->command->info("Created user: {$userData['email']} with role: {$role->name}");

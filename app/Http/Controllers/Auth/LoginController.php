@@ -31,14 +31,25 @@ class LoginController extends Controller
         // Update last login timestamp
         Auth::user()->updateLastLogin();
 
-        // Role-based redirect
+        // Role-based redirect using Spatie
         $user = Auth::user();
 
-        return match ($user->role) {
-            'super_admin' => redirect()->intended(route('super-admin.dashboard')),
-            'admin', 'staff' => redirect()->intended(route('admin.dashboard')),
-            default => redirect()->intended(route('home')),
-        };
+        // Super admin redirect
+        if ($user->isSuperAdmin()) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        // Check roles using Spatie
+        if ($user->hasRole('Admin')) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($user->hasRole('admin') || $user->hasRole('staff')) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        // Default: go to home
+        return redirect()->intended(route('home'));
     }
 
     /**

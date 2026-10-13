@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,12 +18,10 @@ class SidebarVisibilityTest extends TestCase
 
         $role = Role::create([
             'name' => 'Super Admin',
-            'slug' => 'super-admin',
-            'description' => 'System administrator',
-            'is_super_admin' => true,
+            'guard_name' => 'web',
         ]);
 
-        $user->roles()->attach($role->id);
+        $user->assignRole($role);
 
         Warehouse::create([
             'name' => 'Main Warehouse',

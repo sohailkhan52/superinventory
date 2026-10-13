@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Permission;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -28,8 +28,8 @@ class AuthorizationServiceProvider extends ServiceProvider
         // Define gates for all permissions
         try {
             Permission::all()->each(function ($permission) {
-                Gate::define($permission->slug, function ($user) use ($permission) {
-                    return $user->hasPermission($permission->slug);
+                Gate::define($permission->name, function ($user) use ($permission) {
+                    return $user->hasPermission($permission->name);
                 });
             });
         } catch (\Exception $e) {
