@@ -35,11 +35,19 @@ class ShopController extends Controller
      */
     public function approve(Shop $shop): RedirectResponse
     {
-        $shop->update(['status' => 'approved']);
+        $shop->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => auth()->id(),
+        ]);
 
-        // Also activate the shop owner account
-        if ($shop->owner) {
-            $shop->owner->update(['status' => 'active']);
+        // Approve all users in the shop and assign Admin role if missing
+        $shop->users()->update(['status' => 'approved']);
+        
+        foreach ($shop->users()->get() as $user) {
+            if (!$user->hasRole('Admin')) {
+                $user->assignRole('Admin');
+            }
         }
 
         return back()->with('success', "Shop \"{$shop->name}\" has been approved.");
@@ -52,10 +60,8 @@ class ShopController extends Controller
     {
         $shop->update(['status' => 'rejected']);
 
-        // Deactivate the shop owner account
-        if ($shop->owner) {
-            $shop->owner->update(['status' => 'inactive']);
-        }
+        // Reject all users in the shop
+        $shop->users()->update(['status' => 'rejected']);
 
         return back()->with('success', "Shop \"{$shop->name}\" has been rejected.");
     }
@@ -65,13 +71,36 @@ class ShopController extends Controller
      */
     public function suspend(Shop $shop): RedirectResponse
     {
-        $shop->update(['status' => 'suspended']);
+        $shop->update([
+            'status' => 'suspended',
+            'suspended_at' => now(),
+        ]);
 
-        // Suspend the shop owner account
-        if ($shop->owner) {
-            $shop->owner->update(['status' => 'suspended']);
-        }
+        // Suspend all users in the shop
+        $shop->users()->update(['status' => 'suspended']);
 
         return back()->with('success', "Shop \"{$shop->name}\" has been suspended.");
+    }
+
+    /**
+     * Reactivate a suspended shop.
+     */
+    public function activate(Shop $shop): RedirectResponse
+    {
+        $shop->update([
+            'status' => 'approved',
+            'suspended_at' => null,
+        ]);
+
+        // Reactivate all users in the shop
+        $shop->users()->update(['status' => 'approved']);
+        
+        foreach ($shop->users()->get() as $user) {
+            if (!$user->hasRole('Admin')) {
+                $user->assignRole('Admin');
+            }
+        }
+
+        return back()->with('success', 'Shop reactivated.');
     }
 }

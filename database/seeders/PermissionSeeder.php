@@ -17,64 +17,68 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
+            // Purchase Management (dot notation used in code)
+            'purchases.view',
+            'purchases.create',
+            'purchases.update',
+            'purchases.approve',
+            'purchases.cancel',
+
+            // Sales Management (dot notation used in code)
+            'sales.view',
+            'sales.create',
+            'sales.update',
+            'sales.cancel',
+            'sales.approve',
+
+            // Udhar Management (Credit/Outstanding) (dot notation used in code)
+            'udhar.view',
+            'udhar.payments',
+            'udhar.reports',
+            
+            // Payables Management
+            'payables.view',
+            'payables.manage',
+
             // Category Management
-            'View Categories',
-            'Create Categories',
-            'Edit Categories',
-            'Delete Categories',
+            'categories.view',
+            'categories.create',
+            'categories.edit',
+            'categories.delete',
 
             // User Management
-            'View Users',
-            'Create Users',
-            'Edit Users',
-            'Delete Users',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
 
             // Company Management
-            'View Companies',
-            'Create Companies',
-            'Edit Companies',
-            'Delete Companies',
+            'companies.view',
+            'companies.create',
+            'companies.edit',
+            'companies.delete',
 
             // Product Management
-            'View Products',
-            'Create Products',
-            'Edit Products',
-            'Delete Products',
+            'products.view',
+            'products.create',
+            'products.edit',
+            'products.delete',
 
             // Warehouse Management
-            'View Warehouses',
-            'Create Warehouses',
-            'Edit Warehouses',
-            'Delete Warehouses',
+            'warehouses.view',
+            'warehouses.create',
+            'warehouses.edit',
+            'warehouses.delete',
 
             // Inventory Management
-            'View Inventory',
-            'Manage Inventory',
-            'Check Inventory',
-            'Adjust Inventory',
-
-            // Purchase Management
-            'View Purchases',
-            'Create Purchases',
-            'Update Purchases',
-            'Approve Purchases',
-            'Cancel Purchases',
-
-            // Sales Management
-            'View Sales',
-            'Create Sales',
-            'Update Sales',
-            'Cancel Sales',
-            'Approve Sales',
+            'inventory.view',
+            'inventory.manage',
+            'inventory.check',
+            'inventory.adjust',
 
             // Reports
-            'View Reports',
-            'Export Reports',
-
-            // Udhar Management (Credit/Outstanding)
-            'View Udhar',
-            'Record Udhar Payments',
-            'Export Udhar Reports',
+            'reports.view',
+            'reports.export',
         ];
 
         foreach ($permissions as $permissionName) {

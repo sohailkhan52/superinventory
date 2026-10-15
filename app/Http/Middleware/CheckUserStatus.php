@@ -28,24 +28,26 @@ class CheckUserStatus
 
         // If user is authenticated, check their status
         if ($user) {
-            // User is inactive - log them out immediately
-            if ($user->isInactive()) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                
-                return redirect()->route('login')
-                    ->with('error', 'Your account has been deactivated. Please contact your administrator.');
+            // Super admin bypass - they can always access
+            if ($user->isSuperAdmin()) {
+                return $next($request);
             }
 
-            // User is suspended - log them out immediately
-            if ($user->isSuspended()) {
+            // User status is not approved - log them out immediately
+            if (!$user->isApproved()) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 
+                $message = match ($user->status) {
+                    'pending' => 'Your account is pending approval. Please contact your administrator.',
+                    'rejected' => 'Your account registration was rejected.',
+                    'suspended' => 'Your account has been suspended.',
+                    default => 'Your account is not active.',
+                };
+                
                 return redirect()->route('login')
-                    ->with('error', 'Your account has been suspended. Please contact your administrator.');
+                    ->with('error', $message);
             }
         }
 

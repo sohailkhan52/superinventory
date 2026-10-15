@@ -57,8 +57,8 @@ class RegisterController extends Controller
                     'shop_id' => $shop->id,
                 ]);
 
-                $shop->update(['owner_id' => $user->id]);
-                $user->assignRole('admin');
+                // Assign Admin role
+                $user->assignRole('Admin');
             });
 
             return redirect()->route('login')

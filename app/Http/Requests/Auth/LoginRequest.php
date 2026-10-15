@@ -46,12 +46,13 @@ class LoginRequest extends FormRequest
         // Check if user exists and get their status
         $user = User::where('email', $this->email)->first();
 
-        if ($user && !$user->isActive()) {
+        if ($user && !$user->isApproved()) {
             RateLimiter::clear($this->throttleKey());
             
             $message = match ($user->status) {
-                User::STATUS_INACTIVE => 'Your account is inactive. Please contact the administrator.',
-                User::STATUS_SUSPENDED => 'Your account has been suspended. Please contact the administrator.',
+                User::STATUS_PENDING => 'Your shop registration is pending approval from the super admin.',
+                User::STATUS_REJECTED => 'Your shop registration was rejected.',
+                User::STATUS_SUSPENDED => 'Your account has been suspended.',
                 default => 'Your account is not active.',
             };
 

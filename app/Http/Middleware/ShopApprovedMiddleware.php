@@ -27,10 +27,11 @@ class ShopApprovedMiddleware
             return redirect()->route('login')->with('error', 'Your account is not linked to any shop.');
         }
 
-        // Shop user: must have active status
-        if ($user->status !== 'active') {
+        // Shop user: must have approved status
+        if (!$user->isApproved()) {
             $message = match ($user->status) {
-                'inactive'  => 'Your account has been deactivated. Please contact support.',
+                'pending'   => 'Your shop registration is pending approval. Please wait for admin approval.',
+                'rejected'  => 'Your shop registration has been rejected. Please contact support.',
                 'suspended' => 'Your account has been suspended. Please contact support.',
                 default     => 'Your account is not active.',
             };

@@ -82,7 +82,7 @@ Route::middleware('auth')->group(function () {
 |
 */
 
-Route::middleware(['auth', 'shop.approved', 'role:admin,staff', 'user_status'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'shop.approved', 'role:Admin,Staff'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/update-settings', [DashboardController::class, 'updateSettings'])->name('dashboard.update-settings');

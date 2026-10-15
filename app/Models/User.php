@@ -35,10 +35,11 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles;
 
     /**
-     * Status constants
+     * Status constants (for multi-tenant workflow)
      */
-    public const STATUS_ACTIVE = 'active';
-    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
     public const STATUS_SUSPENDED = 'suspended';
 
     /**
@@ -69,22 +70,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is active
-     */
-    public function isActive(): bool
-    {
-        return $this->status === self::STATUS_ACTIVE;
-    }
-
-    /**
-     * Check if user is inactive
-     */
-    public function isInactive(): bool
-    {
-        return $this->status === self::STATUS_INACTIVE;
-    }
-
-    /**
      * Check if user is suspended
      */
     public function isSuspended(): bool
@@ -93,11 +78,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope: Get only active users
+     * Scope: Get only approved users
      */
-    public function scopeActive($query)
+    public function scopeApproved($query)
     {
-        return $query->where('status', self::STATUS_ACTIVE);
+        return $query->where('status', self::STATUS_APPROVED);
     }
 
     /**
@@ -128,15 +113,6 @@ class User extends Authenticatable
     */
 
     /**
-     * Get the roles for the user.
-     */
-    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(Role::class, 'role_user')
-            ->withTimestamps();
-    }
-
-    /**
      * Check if user is a super admin via the is_super_admin flag on users table.
      * Super admin has implicit all permissions and roles.
      */
@@ -146,18 +122,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has a specific role.
-     * Uses Spatie's built-in hasRole method via HasRoles trait.
+     * Check if user is approved
      */
-    public function hasRole(string|array $roles): bool
+    public function isApproved(): bool
     {
-        // Super admin implicitly has all roles
-        if ($this->isSuperAdmin()) {
-            return true;
-        }
+        return $this->status === self::STATUS_APPROVED;
+    }
 
-        // Use Spatie's native hasRole (from HasRoles trait)
-        return parent::hasRole($roles);
+    /**
+     * Check if user is pending approval
+     */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    /**
+     * Check if user is rejected
+     */
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
     }
 
     /**

@@ -153,17 +153,25 @@
                 <div class="mb-4">
                     <label class="text-muted small fw-bold">Account Status</label>
                     <div class="mt-2">
-                        @if($user->status === 'active')
+                        @if($user->status === 'approved')
                             <span class="badge bg-success">
-                                <i class="bi bi-check-circle me-1"></i>Active
+                                <i class="bi bi-check-circle me-1"></i>Approved
                             </span>
-                        @elseif($user->status === 'inactive')
+                        @elseif($user->status === 'pending')
+                            <span class="badge bg-warning">
+                                <i class="bi bi-clock me-1"></i>Pending Approval
+                            </span>
+                        @elseif($user->status === 'rejected')
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle me-1"></i>Rejected
+                            </span>
+                        @elseif($user->status === 'suspended')
                             <span class="badge bg-secondary">
-                                <i class="bi bi-pause-circle me-1"></i>Inactive
+                                <i class="bi bi-pause-circle me-1"></i>Suspended
                             </span>
                         @else
-                            <span class="badge bg-danger">
-                                <i class="bi bi-x-circle me-1"></i>Suspended
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-question-circle me-1"></i>{{ ucfirst($user->status) }}
                             </span>
                         @endif
                     </div>
